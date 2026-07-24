@@ -21,6 +21,8 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios
             long instrumentoId,
             DateTime fechaInicio,
             DateTime fechaFin);
+
+        Task<IEnumerable<MedicionRespuestaDto>> ObtenerTodasLasMedicionesAsync();
     }
 
 }

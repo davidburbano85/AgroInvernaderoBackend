@@ -21,5 +21,6 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios
             Guid usuarioId);
 
         Task<bool> ExisteMedicionAsync(long id);
+        Task<IEnumerable<Medicion>> ObtenerTodasLasMedicionesAsync(Guid usuarioId);
     }
 }

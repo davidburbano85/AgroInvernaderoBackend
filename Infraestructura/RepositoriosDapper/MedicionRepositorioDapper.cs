@@ -215,5 +215,38 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                 _unitOfWork.Transaction
             );
         }
+        public async Task<IEnumerable<Medicion>> ObtenerTodasLasMedicionesAsync(Guid usuarioId)
+        {
+            const string sql = """
+                SELECT
+                    m.id,
+                    m.instrumento_id,
+                    m.coordenada_x,
+                    m.coordenada_y,
+                    m.cantidad,
+                    m.fecha_hora,
+                    m.estado,
+                    m.activo
+                FROM public.mediciones m
+                INNER JOIN public.instrumentos i
+                    ON i.id = m.instrumento_id
+                INNER JOIN public.controlador_iot c
+                    ON c.id = i.controlador_id
+                INNER JOIN public.invernaderos inv
+                    ON inv.id = c.invernadero_id
+                WHERE inv.usuario_id = @UsuarioId
+                ORDER BY m.fecha_hora DESC;
+                """;
+
+            return await _unitOfWork.Connection.QueryAsync<Medicion>(
+                sql,
+                new
+                {
+                    UsuarioId = usuarioId
+                },
+                _unitOfWork.Transaction
+            );
+        }
+
     }
 }

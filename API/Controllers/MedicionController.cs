@@ -81,5 +81,14 @@ namespace invernaderoInteligenteBackend.API.Controllers
 
             return Ok(mediciones);
         }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<MedicionRespuestaDto>>> ObtenerTodasLasMediciones()
+        {
+            IEnumerable<MedicionRespuestaDto> mediciones =
+                await _medicionServicio.ObtenerTodasLasMedicionesAsync();
+
+            return Ok(mediciones);
+        }
     }
 }

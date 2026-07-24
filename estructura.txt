@@ -1,0 +1,64 @@
+Listado de rutas de carpetas
+El número de serie del volumen es 00000037 CCC9:0080
+C:.
++---.github
+¦   +---workflows
++---API
+¦   +---Controllers
+¦   +---Hubs
++---Aplicacion
+¦   +---DTO
+¦   ¦   +---AuthDto
+¦   ¦   +---ControladorDto
+¦   ¦   +---InstrumentoDto
+¦   ¦   +---InvernaderoDto
+¦   ¦   +---Medicion
+¦   ¦   +---TipoInstrumentoDto
+¦   ¦   +---UsuarioDto
+¦   +---EnumsDto
+¦   ¦   +---EstadoInstrumentoDto
+¦   +---Interfaces
+¦   ¦   +---Context
+¦   ¦   +---IAuth
+¦   ¦   +---IRepositorios
+¦   ¦   +---IServicios
+¦   ¦   ¦   +---ISignalR
+¦   ¦   +---IunitOfWork
+¦   ¦   +---IWebSockets
+¦   +---Servicios
+¦       +---Auth
+¦       +---ServiciosDto
+¦       +---SignalR
+¦       +---WebSocketServicios
++---bin
+¦   +---Debug
+¦       +---net9.0
++---Dominio
+¦   +---Entidades
+¦   ¦   +---ControladorIot
+¦   ¦   +---Instrumentos
+¦   ¦   +---Invernadero
+¦   ¦   +---Medicion
+¦   ¦   +---TipoInstrumentos
+¦   ¦   +---Usuario
+¦   +---Enums
+¦       +---EntidadEstadoInstrumento
++---Infraestructura
+¦   +---AccesoADatos
+¦   +---Auth
+¦   +---Conexion
+¦   +---Context
+¦   +---Mapper
+¦   ¦   +---MapperDominio
+¦   ¦   +---MapperDto
+¦   +---RepositoriosDapper
+¦   +---UnitOfWork
+¦   +---WebSockets
++---obj
+¦   +---Debug
+¦       +---net9.0
+¦           +---EndpointInfo
+¦           +---ref
+¦           +---refint
+¦           +---staticwebassets
++---Properties

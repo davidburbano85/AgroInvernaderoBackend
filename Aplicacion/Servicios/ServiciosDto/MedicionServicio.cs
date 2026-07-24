@@ -175,5 +175,25 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Activo = medicion.Activo
             });
         }
+        public async Task<IEnumerable<MedicionRespuestaDto>> ObtenerTodasLasMedicionesAsync()
+        {
+            Guid usuarioId = _usuarioContext.ObtenerAuthUserId();
+
+            IEnumerable<Medicion> mediciones =
+                await _medicionRepositorio.ObtenerTodasLasMedicionesAsync(usuarioId);
+
+            return mediciones.Select(medicion => new MedicionRespuestaDto
+            {
+                Id = medicion.Id,
+                InstrumentoId = medicion.InstrumentoId,
+                CoordenadaX = medicion.CoordenadaX,
+                CoordenadaY = medicion.CoordenadaY,
+                Cantidad = medicion.Cantidad,
+                FechaHora = medicion.FechaHora,
+                Estado = medicion.Estado,
+                Activo = medicion.Activo
+            });
+        }
+
     }
 }
