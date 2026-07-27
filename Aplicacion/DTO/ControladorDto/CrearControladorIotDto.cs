@@ -1,4 +1,5 @@
-﻿namespace invernaderoInteligenteBackend.Aplicacion.DTO.ControladorDto
+﻿
+namespace invernaderoInteligenteBackend.Aplicacion.DTO.ControladorDto
 {
     public class CrearControladorIotDto
     {

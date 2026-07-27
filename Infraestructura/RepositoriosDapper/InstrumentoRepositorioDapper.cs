@@ -47,6 +47,9 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                 },
                 _unitOfWork.Transaction);
         }
+       
+        
+        
         public async Task<Instrumento> ActualizarInstrumentoAsync(Instrumento instrumento)
         {
             const string sql = """

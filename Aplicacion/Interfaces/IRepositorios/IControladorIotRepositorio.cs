@@ -11,6 +11,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios
         Task<bool> ExisteControladorIotAsync(long id);
         Task<bool> ReactivarLogicoControladorIotAsync(long id);
         Task<bool> ExisteControladorPorInvernaderoAsync(long invernaderoId);
+        Task<ControladorIot> ObtenerControladorPorToken(Guid token);
 
 
     }

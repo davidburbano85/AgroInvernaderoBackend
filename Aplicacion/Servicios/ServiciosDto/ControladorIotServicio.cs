@@ -12,15 +12,18 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
         private readonly IInvernaderoRepositorio _invernaderoRepositorio;
         private readonly IControladorIotRepositorio _controladorIotRepositorio;
         private readonly IUsuarioContext _usuarioContext;
+        private readonly IControladorContext _controladorContext;
 
         public ControladorIotServicio(
             IControladorIotRepositorio controladorIotRepositorio,
             IUsuarioContext usuarioContext,
-            IInvernaderoRepositorio invernaderoRepositorio)
+            IInvernaderoRepositorio invernaderoRepositorio,
+            IControladorContext controladorContext)
         {
             _controladorIotRepositorio = controladorIotRepositorio;
             _usuarioContext = usuarioContext;
             _invernaderoRepositorio = invernaderoRepositorio;
+            _controladorContext = controladorContext;
         }
 
 
@@ -47,6 +50,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
             {
                 InvernaderoId = invernadero.Id,
                 Nombre = dto.Nombre,
+                Token = Guid.NewGuid(),
                 Ubicacion = dto.Ubicacion,
                 Referencia = dto.Referencia,
                 Descripcion = dto.Descripcion,
@@ -66,6 +70,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Id = controlador.Id,
                 InvernaderoId = controlador.InvernaderoId,
                 Nombre = controlador.Nombre,
+                Token= controlador.Token,
                 Ubicacion = controlador.Ubicacion,
                 Referencia = controlador.Referencia,
                 Descripcion = controlador.Descripcion,
@@ -75,9 +80,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
         }
 
 
-        public async Task<ControladorIotRespuestaDto> ActualizarControladorIotAsync(
-            long id,
-            ActualizarControladorIotDto dto)
+        public async Task<ControladorIotRespuestaDto> ActualizarControladorIotAsync(long id,ActualizarControladorIotDto dto)
         {
             var controlador = new ControladorIot
             {
@@ -87,7 +90,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Referencia = dto.Referencia,
                 Descripcion = dto.Descripcion,
                 UltimaConexion = dto.UltimaConexion
-            };
+            }; 
 
 
             ControladorIot actualizado =

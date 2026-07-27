@@ -5,6 +5,7 @@
         public long Id { get; set; }
         public long InvernaderoId { get; set; }
         public string Nombre { get; set; }
+        public Guid Token { get; set; }
         public string Ubicacion { get; set; }
         public string Referencia { get; set; }
         public string Descripcion { get; set; }

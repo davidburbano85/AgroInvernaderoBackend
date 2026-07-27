@@ -41,16 +41,37 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
         }
         public async Task<long> CrearControladorIotAsync(ControladorIot controladorIot)
         {
+
             const string sql = """
-                INSERT INTO public.controlador_iot (invernadero_id, nombre, ubicacion, referencia, descripcion, ultima_conexion, activo)
-                VALUES (@InvernaderoId, @Nombre, @Ubicacion, @Referencia, @Descripcion, @UltimaConexion, @Activo)
+                INSERT INTO public.controlador_iot (
+                    invernadero_id,
+                    nombre,
+                    token,
+                    ubicacion,
+                    referencia,
+                    descripcion,
+                    ultima_conexion,
+                    activo
+                )
+                VALUES (
+                    @InvernaderoId,
+                    @Nombre,
+                    @Token,
+                    @Ubicacion,
+                    @Referencia,
+                    @Descripcion,
+                    @UltimaConexion,
+                    @Activo
+                )
                 RETURNING id
                 """;
-            return await _unitOfWork.Connection.ExecuteScalarAsync<long>(sql, controladorIot, _unitOfWork.Transaction);
 
-
+            return await _unitOfWork.Connection.ExecuteScalarAsync<long>(
+                sql,
+                controladorIot,
+                _unitOfWork.Transaction
+            );
         }
-
         public async Task<bool> EliminarLogicoControladorIotAsync(long id)
         {
             const string sql = """
@@ -109,5 +130,39 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                 new { InvernaderoId = invernaderoId },
                 _unitOfWork.Transaction);
         }
+
+        public async Task<ControladorIot> ObtenerControladorPorToken(Guid token)
+        {
+            const string sql = """
+                SELECT
+                    id,
+                    invernadero_id AS InvernaderoId,
+                    nombre,
+                    token,
+                    ubicacion,
+                    referencia,
+                    descripcion,
+                    ultima_conexion AS UltimaConexion,
+                    activo,
+                    created_at AS CreatedAt,
+                    updated_at AS UpdatedAt
+                FROM public.controlador_iot
+                WHERE token = @Token
+                """;
+
+            var controlador = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<ControladorIot>(
+                sql,
+                new { Token = token },
+                _unitOfWork.Transaction
+            );
+
+            if (controlador == null)
+                throw new KeyNotFoundException("No existe el controlador IoT con el token proporcionado.");
+
+            return controlador;
+        }
+
+
+
     }
 }

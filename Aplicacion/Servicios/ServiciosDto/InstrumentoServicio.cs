@@ -50,10 +50,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
             if (!existeTipo)
                 throw new KeyNotFoundException("El tipo de instrumento no existe.");
 
-            bool referenciaDuplicada =
-                await _instrumentoRepositorio.ExisteReferenciaInstrumentoAsync(
-                    controlador.Id,
-                    dto.Referencia);
+          
 
            
 

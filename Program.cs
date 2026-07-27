@@ -76,6 +76,8 @@ builder.Services.AddScoped< IJwtServicio,  JwtServicio>();
 builder.Services.AddHttpContextAccessor();//registra el servicio IHttpContextAccessor para acceder al contexto HTTP en otras partes de la aplicación
 builder.Services.AddScoped<IUsuarioContext, UsuarioContextServicio>();//registra el servicio IUsuarioContext para acceder a la información del usuario en otras partes de la aplicación
 
+builder.Services.AddScoped<IControladorContext, ControladorContextServicio>();//registra el servicio IControladorContext para acceder a la información del controlador en otras partes de la aplicación
+
 //===================== IunitFWork =====================
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 //===================== TOKE STORE =====================
@@ -302,13 +304,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseCors("Policy");
-
+app.UseWebSockets();
 
 
 app.UseAuthentication();
 
 app.UseAuthorization();
-app.UseWebSockets();
 
 app.MapControllers();
 app.MapHub<ControladorHub>("/controladorHub");
