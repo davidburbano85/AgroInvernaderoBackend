@@ -125,62 +125,42 @@ namespace invernaderoInteligenteBackend.Api.Controllers
 
                 while (conexion.State == WebSocketState.Open)
                 {
-
-                    Console.WriteLine("[6] Esperando mensaje");
-
-
-                    var resultado =
-                        await conexion.ReceiveAsync(
-                            new ArraySegment<byte>(buffer),
-                            CancellationToken.None
-                        );
-
-
-
-                    Console.WriteLine(
-                        $"[7] Tipo: {resultado.MessageType}"
-                    );
-
-                    Console.WriteLine(
-                        $"[8] Bytes: {resultado.Count}"
-                    );
-
-
-
-                    if (resultado.MessageType ==
-                        WebSocketMessageType.Close)
+                    try
                     {
+                        Console.WriteLine("Esperando ReceiveAsync...");
 
-                        Console.WriteLine("[9] Cliente cerro conexión");
+                        var resultado = await conexion.ReceiveAsync(
+                            new ArraySegment<byte>(buffer),
+                            CancellationToken.None);
 
+                        Console.WriteLine("ReceiveAsync terminó");
 
-                        await conexion.CloseAsync(
-                            WebSocketCloseStatus.NormalClosure,
-                            "Cierre normal",
-                            CancellationToken.None
-                        );
+                        Console.WriteLine($"Tipo: {resultado.MessageType}");
+                        Console.WriteLine($"Bytes: {resultado.Count}");
 
+                        if (resultado.MessageType == WebSocketMessageType.Close)
+                        {
+                            Console.WriteLine("El cliente pidió cerrar");
 
+                            await conexion.CloseAsync(
+                                WebSocketCloseStatus.NormalClosure,
+                                "OK",
+                                CancellationToken.None);
+
+                            break;
+                        }
+
+                        Console.WriteLine(
+                            Encoding.UTF8.GetString(buffer, 0, resultado.Count));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("EXCEPCION EN RECEIVE");
+                        Console.WriteLine(ex.GetType().FullName);
+                        Console.WriteLine(ex.Message);
                         break;
                     }
-
-
-
-                    string mensaje =
-                        Encoding.UTF8.GetString(
-                            buffer,
-                            0,
-                            resultado.Count
-                        );
-
-
-                    Console.WriteLine("==============================");
-                    Console.WriteLine("MENSAJE RECIBIDO");
-                    Console.WriteLine(mensaje);
-                    Console.WriteLine("==============================");
-
                 }
-
             }
             catch (Exception ex)
             {
