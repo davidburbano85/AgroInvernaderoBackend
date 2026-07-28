@@ -5,22 +5,17 @@ using System.Text;
 
 namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
 {
-
     public class WebSocketManagerRepositorio : IWebSocketManager
     {
-
-
-        // Guarda las conexiones activas de los controladores.
         private readonly ConcurrentDictionary<string, WebSocket> _controladoresConectados;
-
 
 
         public WebSocketManagerRepositorio()
         {
+            Console.WriteLine("[WebSocketManager] Constructor");
 
-            // Inicializa el almacenamiento de conexiones.
-            _controladoresConectados = new ConcurrentDictionary<string, WebSocket>();
-
+            _controladoresConectados =
+                new ConcurrentDictionary<string, WebSocket>();
         }
 
 
@@ -30,48 +25,47 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
             WebSocket conexion)
         {
 
-            // Guarda o reemplaza la conexión del controlador.
+            Console.WriteLine("==============================");
+            Console.WriteLine("[RegistrarControladorAsync]");
+            Console.WriteLine($"ID recibido: {idControlador}");
+            Console.WriteLine($"Estado conexion recibida: {conexion.State}");
+            Console.WriteLine($"Cantidad antes: {_controladoresConectados.Count}");
+            Console.WriteLine("==============================");
+
+
             _controladoresConectados.AddOrUpdate(
                 idControlador,
                 conexion,
-                (id, conexionAnterior) => conexion
+                (id, conexionAnterior) =>
+                {
+                    Console.WriteLine("[AddOrUpdate] Reemplazando conexión anterior");
+                    Console.WriteLine($"Estado anterior: {conexionAnterior.State}");
+
+                    return conexion;
+                }
             );
 
+
+            Console.WriteLine("==============================");
+            Console.WriteLine("[Conexion guardada]");
+            Console.WriteLine(
+                $"Existe llave {idControlador}: {_controladoresConectados.ContainsKey(idControlador)}"
+            );
+
+            Console.WriteLine(
+                $"Estado guardado: {_controladoresConectados[idControlador].State}"
+            );
+
+            Console.WriteLine(
+                $"Cantidad después: {_controladoresConectados.Count}"
+            );
+
+            Console.WriteLine("==============================");
+
+
             await Task.CompletedTask;
-
         }
 
-
-
-        public async Task DesconectarControladorAsync(
-            string idControlador)
-        {
-
-            // Busca y elimina el controlador conectado.
-            if (_controladoresConectados.TryRemove(
-                idControlador,
-                out var conexion))
-            {
-
-                // Verifica que la conexión siga abierta.
-                if (conexion.State == WebSocketState.Open)
-                {
-
-                    await conexion.CloseAsync(
-                        WebSocketCloseStatus.NormalClosure,
-                        "Desconectado por servidor",
-                        CancellationToken.None
-                    );
-
-                }
-
-
-                // Libera recursos.
-                conexion.Dispose();
-
-            }
-
-        }
 
 
 
@@ -80,23 +74,38 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
             string mensaje)
         {
 
-            // Busca el controlador conectado.
+            Console.WriteLine("==============================");
+            Console.WriteLine("[EnviarMensajeAsync MANAGER]");
+            Console.WriteLine($"Buscando ID: {idControlador}");
+            Console.WriteLine($"Mensaje: {mensaje}");
+            Console.WriteLine($"Cantidad conexiones: {_controladoresConectados.Count}");
+            Console.WriteLine("==============================");
+
+
             if (!_controladoresConectados.TryGetValue(
                 idControlador,
                 out var conexion))
             {
 
+                Console.WriteLine("[ERROR] No existe en diccionario");
+
                 throw new Exception(
                     $"El controlador {idControlador} no está conectado"
                 );
-
             }
 
 
 
-            // Verifica que la conexión esté activa.
+            Console.WriteLine("[Encontrado en diccionario]");
+            Console.WriteLine($"Estado socket: {conexion.State}");
+
+
+
             if (conexion.State != WebSocketState.Open)
             {
+
+                Console.WriteLine("[ERROR] Socket encontrado pero cerrado");
+                Console.WriteLine($"Estado actual: {conexion.State}");
 
                 throw new Exception(
                     $"El controlador {idControlador} no tiene una conexión activa"
@@ -106,12 +115,13 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
 
 
 
-            // Convierte el mensaje a bytes.
             var bytes = Encoding.UTF8.GetBytes(mensaje);
 
 
 
-            // Envía el mensaje al ESP32.
+            Console.WriteLine("[Enviando mensaje...]");
+
+
             await conexion.SendAsync(
                 new ArraySegment<byte>(bytes),
                 WebSocketMessageType.Text,
@@ -119,19 +129,84 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
                 CancellationToken.None
             );
 
+
+            Console.WriteLine("[Mensaje enviado correctamente]");
+
         }
 
 
 
-        public bool EstaConectado(
+
+        public bool EstaConectado(string idControlador)
+        {
+
+            Console.WriteLine("==============================");
+            Console.WriteLine("[EstaConectado]");
+            Console.WriteLine($"Buscando: {idControlador}");
+            Console.WriteLine($"Cantidad: {_controladoresConectados.Count}");
+
+            bool existe =
+                _controladoresConectados.TryGetValue(
+                    idControlador,
+                    out var conexion);
+
+
+            Console.WriteLine($"Existe: {existe}");
+
+
+            if (existe)
+            {
+                Console.WriteLine($"Estado: {conexion.State}");
+            }
+
+            Console.WriteLine("==============================");
+
+
+            return existe &&
+                conexion.State == WebSocketState.Open;
+        }
+
+
+
+
+
+        public async Task DesconectarControladorAsync(
             string idControlador)
         {
 
-            return _controladoresConectados.TryGetValue(
-                    idControlador,
-                    out var conexion)
-                &&
-                conexion.State == WebSocketState.Open;
+            Console.WriteLine("==============================");
+            Console.WriteLine("[DesconectarControladorAsync]");
+            Console.WriteLine($"ID: {idControlador}");
+            Console.WriteLine("==============================");
+
+
+            if (_controladoresConectados.TryRemove(
+                idControlador,
+                out var conexion))
+            {
+
+                Console.WriteLine("[Conexion eliminada del diccionario]");
+                Console.WriteLine($"Estado: {conexion.State}");
+
+
+                if (conexion.State == WebSocketState.Open)
+                {
+                    await conexion.CloseAsync(
+                        WebSocketCloseStatus.NormalClosure,
+                        "Desconectado por servidor",
+                        CancellationToken.None
+                    );
+                }
+
+
+                conexion.Dispose();
+
+                Console.WriteLine("[Dispose ejecutado]");
+            }
+            else
+            {
+                Console.WriteLine("[No existia conexion]");
+            }
 
         }
 
@@ -141,48 +216,50 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
             string idControlador)
         {
 
-            // Busca la conexión del controlador.
+            Console.WriteLine("[RecibirMensajeAsync]");
+            Console.WriteLine($"ID: {idControlador}");
+
+
             if (!_controladoresConectados.TryGetValue(
                 idControlador,
                 out var conexion))
             {
-
                 throw new Exception(
                     $"El controlador {idControlador} no está conectado"
                 );
-
             }
 
 
+            Console.WriteLine($"Estado socket: {conexion.State}");
 
-            // Buffer donde se almacenará el mensaje recibido.
+
             var buffer = new byte[4096];
 
 
-
-            // Recibe información enviada por el ESP32.
-            WebSocketReceiveResult resultado =
+            var resultado =
                 await conexion.ReceiveAsync(
                     new ArraySegment<byte>(buffer),
                     CancellationToken.None
                 );
 
 
+            Console.WriteLine($"Bytes recibidos: {resultado.Count}");
+            Console.WriteLine($"Tipo: {resultado.MessageType}");
 
-            // Convierte los bytes recibidos a texto.
-            string mensaje = Encoding.UTF8.GetString(
-                buffer,
-                0,
-                resultado.Count
-            );
 
+            string mensaje =
+                Encoding.UTF8.GetString(
+                    buffer,
+                    0,
+                    resultado.Count
+                );
+
+
+            Console.WriteLine($"Mensaje recibido: {mensaje}");
 
 
             return mensaje;
 
         }
-
-
     }
-
 }
