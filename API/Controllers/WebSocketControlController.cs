@@ -131,36 +131,52 @@ namespace invernaderoInteligenteBackend.Api.Controllers
 
                         var resultado = await conexion.ReceiveAsync(
                             new ArraySegment<byte>(buffer),
-                            CancellationToken.None);
+                            CancellationToken.None
+                        );
 
-                        Console.WriteLine("ReceiveAsync terminó");
 
+                        Console.WriteLine("Receive terminado");
                         Console.WriteLine($"Tipo: {resultado.MessageType}");
                         Console.WriteLine($"Bytes: {resultado.Count}");
 
+
                         if (resultado.MessageType == WebSocketMessageType.Close)
                         {
-                            Console.WriteLine("El cliente pidió cerrar");
+                            Console.WriteLine("Cliente pidió cierre");
+
 
                             await conexion.CloseAsync(
                                 WebSocketCloseStatus.NormalClosure,
-                                "OK",
-                                CancellationToken.None);
+                                "Cierre normal",
+                                CancellationToken.None
+                            );
 
                             break;
                         }
 
-                        Console.WriteLine(
-                            Encoding.UTF8.GetString(buffer, 0, resultado.Count));
+
+                        var mensaje = Encoding.UTF8.GetString(
+                            buffer,
+                            0,
+                            resultado.Count
+                        );
+
+
+                        Console.WriteLine("==============================");
+                        Console.WriteLine("MENSAJE ESP32:");
+                        Console.WriteLine(mensaje);
+                        Console.WriteLine("==============================");
                     }
-                    catch (Exception ex)
+                    catch (WebSocketException ex)
                     {
-                        Console.WriteLine("EXCEPCION EN RECEIVE");
-                        Console.WriteLine(ex.GetType().FullName);
+                        Console.WriteLine("WEBSOCKET CERRADO POR CLIENTE");
                         Console.WriteLine(ex.Message);
+
                         break;
                     }
                 }
+
+
             }
             catch (Exception ex)
             {
