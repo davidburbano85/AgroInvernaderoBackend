@@ -20,6 +20,8 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios
 
         Task<bool> ExisteReferenciaActualizarInstrumentoAsync(long id, long controladorId,string referencia);
         Task<bool> ReactivarInstrumentoLogicoAsync(long id);
+        Task<bool> ExisteInstrumentoPorControladorAsync(long instrumentoId, long controladorId);
+
 
 
     }

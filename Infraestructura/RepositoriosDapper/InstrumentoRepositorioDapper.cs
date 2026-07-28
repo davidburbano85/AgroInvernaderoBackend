@@ -230,7 +230,32 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                 _unitOfWork.Transaction
             );
         }
+        public async Task<bool> ExisteInstrumentoPorControladorAsync(
+            long instrumentoId,
+            long controladorId)
+                {
+                    const string sql = """
+                SELECT EXISTS
+                (
+                    SELECT 1
+                    FROM public.instrumentos
+                    WHERE id = @InstrumentoId
+                    AND controlador_id = @ControladorId
+                    AND activo = TRUE
+                );
+                """;
 
+
+                    return await _unitOfWork.Connection
+                        .ExecuteScalarAsync<bool>(
+                            sql,
+                            new
+                            {
+                                InstrumentoId = instrumentoId,
+                                ControladorId = controladorId
+                            },
+                            _unitOfWork.Transaction);
+        }
         public async Task<bool> ReactivarInstrumentoLogicoAsync(long id)
         {
             const string sql = """

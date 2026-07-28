@@ -26,6 +26,25 @@ namespace invernaderoInteligenteBackend.API.Controllers
             return Ok(id);
         }
 
+        [AllowAnonymous]
+        [HttpPost("iot")]
+        public async Task<IActionResult> CrearMedicionIot(
+            [FromHeader(Name = "X-Device-Token")] Guid token,
+            [FromBody]
+        CrearMedicionDto dto)
+        {
+            long id =
+                await _medicionServicio.CrearMedicionIotAsync(dto);
+
+
+            return Ok(new
+            {
+                id,
+                mensaje = "Medición registrada correctamente."
+            });
+        }
+
+
         [HttpPut("{id:long}")]
         public async Task<ActionResult<MedicionRespuestaDto>> ActualizarMedicion(
             long id,

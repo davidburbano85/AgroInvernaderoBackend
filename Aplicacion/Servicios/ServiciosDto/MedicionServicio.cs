@@ -2,6 +2,7 @@
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.Context;
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios;
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios;
+using invernaderoInteligenteBackend.Dominio.Entidades.ControladorIot;
 using invernaderoInteligenteBackend.Dominio.Entidades.Mediciones;
 
 namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
@@ -11,15 +12,21 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
         private readonly IMedicionRepositorio _medicionRepositorio;
         private readonly IInstrumentoRepositorio _instrumentoRepositorio;
         private readonly IUsuarioContext _usuarioContext;
+        private readonly IControladorContext _controladorContext;
+        private readonly IControladorIotRepositorio _controladorIotRepositorio;
 
         public MedicionServicio(
             IMedicionRepositorio medicionRepositorio,
             IInstrumentoRepositorio instrumentoRepositorio,
-            IUsuarioContext usuarioContext)
+            IUsuarioContext usuarioContext,
+            IControladorContext controladorContext,
+            IControladorIotRepositorio controladorIotRepositorio)
         {
             _medicionRepositorio = medicionRepositorio;
             _instrumentoRepositorio = instrumentoRepositorio;
             _usuarioContext = usuarioContext;
+            _controladorContext = controladorContext;
+            _controladorIotRepositorio = controladorIotRepositorio;
         }
 
         public async Task<long> CrearMedicionAsync(CrearMedicionDto dto)
@@ -45,6 +52,46 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
 
             return id;
         }
+
+        public async Task<long> CrearMedicionIotAsync(CrearMedicionDto dto)
+        {
+            Guid token =
+                _controladorContext.ObtenerTokenControlador();
+
+
+            ControladorIot controlador =
+                await _controladorIotRepositorio
+                    .ObtenerControladorPorToken(token);
+
+
+            bool instrumentoValido =
+                await _instrumentoRepositorio
+                    .ExisteInstrumentoPorControladorAsync(
+                        dto.InstrumentoId,
+                        controlador.Id);
+
+
+            if (!instrumentoValido)
+                throw new UnauthorizedAccessException(
+                    "El instrumento no pertenece al controlador IoT.");
+
+
+            var medicion = new Medicion
+            {
+                InstrumentoId = dto.InstrumentoId,
+                CoordenadaX = dto.CoordenadaX,
+                CoordenadaY = dto.CoordenadaY,
+                Cantidad = dto.Cantidad,
+                FechaHora = DateTime.UtcNow,
+                Estado = dto.Estado,
+                Activo = true
+            };
+
+
+            return await _medicionRepositorio
+                .CrearMedicionAsync(medicion);
+        }
+
 
         public async Task<MedicionRespuestaDto> ActualizarMedicionAsync(
       long id,

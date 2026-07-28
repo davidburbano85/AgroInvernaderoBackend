@@ -23,6 +23,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios
             DateTime fechaFin);
 
         Task<IEnumerable<MedicionRespuestaDto>> ObtenerTodasLasMedicionesAsync();
+        Task <long> CrearMedicionIotAsync(CrearMedicionDto dto);
     }
 
 }
