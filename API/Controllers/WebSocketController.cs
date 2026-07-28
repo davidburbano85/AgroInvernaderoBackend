@@ -6,32 +6,22 @@ namespace invernaderoInteligenteBackend.Api.Controllers
 {
 
     // Indicamos que esta clase es un controlador de API.
-    [Authorize]
+   // [Authorize]
     [ApiController]
 
     // Ruta base para acceder a este controlador.
     [Route("api/[controller]")]
     public class WebSocketController : ControllerBase
     {
-
-
-        // Variable donde guardaremos nuestro servicio.
+                // Variable donde guardaremos nuestro servicio.
         private readonly IWebSocketServicio _webSocketServicio;
-
-
-
-        // Constructor.
+       // Constructor.
         // ASP.NET inyectará automáticamente el servicio.
         public WebSocketController(IWebSocketServicio webSocketServicio)
         {
-
             // Guardamos la referencia del servicio.
             _webSocketServicio = webSocketServicio;
-
         }
-
-
-
         // Endpoint para enviar un mensaje a un controlador IoT.
         //
         // Ejemplo:

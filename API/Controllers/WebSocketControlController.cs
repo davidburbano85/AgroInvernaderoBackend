@@ -6,7 +6,7 @@ using System.Text;
 
 namespace invernaderoInteligenteBackend.Api.Controllers
 {
-    [Authorize]
+   // [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WebSocketControlController : ControllerBase
@@ -60,11 +60,32 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                     CancellationToken.None
                 );
 
-                Console.WriteLine("[9] Mensaje recibido.");
+                if (resultado.MessageType == WebSocketMessageType.Close)
+                {
+                    Console.WriteLine("[9] El controlador solicitó cerrar la conexión.");
+
+                    await conexion.CloseAsync(
+                        WebSocketCloseStatus.NormalClosure,
+                        "Conexión cerrada",
+                        CancellationToken.None);
+
+                    break;
+                }
+
+                string mensaje = Encoding.UTF8.GetString(
+                    buffer,
+                    0,
+                    resultado.Count
+                );
+
+                Console.WriteLine("--------------------------------");
+                Console.WriteLine("Mensaje recibido del ESP32:");
+                Console.WriteLine(mensaje);
+                Console.WriteLine("--------------------------------");
             }
         }
-
-
-
     }
+
 }
+
+   
