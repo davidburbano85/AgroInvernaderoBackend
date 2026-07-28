@@ -70,71 +70,82 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
 
 
         public async Task EnviarMensajeAsync(
-            string idControlador,
-            string mensaje)
+    string idControlador,
+    string mensaje)
         {
-
-            Console.WriteLine("==============================");
+            Console.WriteLine("======================================");
             Console.WriteLine("[EnviarMensajeAsync MANAGER]");
             Console.WriteLine($"Buscando ID: {idControlador}");
             Console.WriteLine($"Mensaje: {mensaje}");
             Console.WriteLine($"Cantidad conexiones: {_controladoresConectados.Count}");
-            Console.WriteLine("==============================");
-
+            Console.WriteLine("======================================");
 
             if (!_controladoresConectados.TryGetValue(
                 idControlador,
                 out var conexion))
             {
+                Console.WriteLine("[ERROR] No existe la llave en el diccionario.");
 
-                Console.WriteLine("[ERROR] No existe en diccionario");
+                foreach (var item in _controladoresConectados)
+                {
+                    Console.WriteLine(
+                        $"ID: {item.Key}  Estado: {item.Value.State}");
+                }
 
                 throw new Exception(
                     $"El controlador {idControlador} no está conectado"
                 );
             }
 
-
-
             Console.WriteLine("[Encontrado en diccionario]");
             Console.WriteLine($"Estado socket: {conexion.State}");
+            Console.WriteLine($"CloseStatus: {conexion.CloseStatus}");
+            Console.WriteLine($"CloseStatusDescription: {conexion.CloseStatusDescription}");
 
+            Console.WriteLine($"SubProtocol: {conexion.SubProtocol}");
 
+            Console.WriteLine($"CanSend: {conexion.State == WebSocketState.Open}");
 
             if (conexion.State != WebSocketState.Open)
             {
-
-                Console.WriteLine("[ERROR] Socket encontrado pero cerrado");
-                Console.WriteLine($"Estado actual: {conexion.State}");
+                Console.WriteLine("[ERROR] El socket NO está abierto.");
 
                 throw new Exception(
                     $"El controlador {idControlador} no tiene una conexión activa"
                 );
-
             }
 
+            try
+            {
+                Console.WriteLine("[Enviando mensaje...]");
 
+                var bytes = Encoding.UTF8.GetBytes(mensaje);
 
-            var bytes = Encoding.UTF8.GetBytes(mensaje);
+                await conexion.SendAsync(
+                    new ArraySegment<byte>(bytes),
+                    WebSocketMessageType.Text,
+                    true,
+                    CancellationToken.None
+                );
 
+                Console.WriteLine("[Mensaje enviado correctamente]");
+                Console.WriteLine($"Estado después del envío: {conexion.State}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("======================================");
+                Console.WriteLine("[ERROR EN SendAsync]");
+                Console.WriteLine($"Tipo: {ex.GetType().FullName}");
+                Console.WriteLine($"Mensaje: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine($"Estado actual: {conexion.State}");
+                Console.WriteLine($"CloseStatus: {conexion.CloseStatus}");
+                Console.WriteLine($"CloseStatusDescription: {conexion.CloseStatusDescription}");
+                Console.WriteLine("======================================");
 
-
-            Console.WriteLine("[Enviando mensaje...]");
-
-
-            await conexion.SendAsync(
-                new ArraySegment<byte>(bytes),
-                WebSocketMessageType.Text,
-                true,
-                CancellationToken.None
-            );
-
-
-            Console.WriteLine("[Mensaje enviado correctamente]");
-
+                throw;
+            }
         }
-
-
 
 
         public bool EstaConectado(string idControlador)

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace invernaderoInteligenteBackend.Api.Controllers
 {
-    [Authorize]
+   // [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WebSocketControlController : ControllerBase

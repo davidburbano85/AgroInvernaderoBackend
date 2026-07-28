@@ -6,7 +6,7 @@ namespace invernaderoInteligenteBackend.Api.Controllers
 {
 
     // Indicamos que esta clase es un controlador de API.
-    [Authorize]
+   // [Authorize]
     [ApiController]
 
     // Ruta base para acceder a este controlador.
