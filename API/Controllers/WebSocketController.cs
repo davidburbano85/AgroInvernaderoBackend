@@ -32,23 +32,40 @@ namespace invernaderoInteligenteBackend.Api.Controllers
         // "MOVER_MOTOR"
         [HttpPost("enviar/{idControlador}")]
         public async Task<IActionResult> EnviarMensaje(
-            string idControlador,
-            [FromBody] string mensaje)
+       string idControlador,
+       [FromBody] string mensaje)
         {
-
-            // Pedimos al servicio que envíe la orden.
-            await _webSocketServicio.EnviarMensajeAsync(
-                idControlador,
-                mensaje
-            );
-
-
-            // Respondemos al frontend indicando que la orden fue enviada.
-            return Ok(new
+            try
             {
-                mensaje = "Orden enviada correctamente"
-            });
+                // 1. Enviar orden al ESP32
+                await _webSocketServicio.EnviarMensajeAsync(
+                    idControlador,
+                    mensaje
+                );
 
+
+                // 2. Esperar respuesta del ESP32
+                var respuesta = await _webSocketServicio.RecibirMensajeAsync(
+                    idControlador
+                );
+
+
+                // 3. Retornar respuesta al frontend
+                return Ok(new
+                {
+                    enviado = true,
+                    mensaje = "Orden enviada correctamente",
+                    respuesta = respuesta
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    enviado = false,
+                    error = ex.Message
+                });
+            }
         }
 
 

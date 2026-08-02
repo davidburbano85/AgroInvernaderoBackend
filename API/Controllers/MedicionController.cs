@@ -29,8 +29,7 @@ namespace invernaderoInteligenteBackend.API.Controllers
         [AllowAnonymous]
         [HttpPost("iot")]
         public async Task<IActionResult> CrearMedicionIot(
-            [FromHeader(Name = "X-Device-Token")] Guid token,
-            [FromBody]
+           [FromBody]
         CrearMedicionDto dto)
         {
             long id =
