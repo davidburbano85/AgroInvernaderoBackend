@@ -3,6 +3,7 @@ using invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios;
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IWebSockets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 
@@ -16,6 +17,7 @@ namespace invernaderoInteligenteBackend.Api.Controllers
         private readonly IWebSocketServicio _webSocketServicio;
         private readonly IControladorIotRepositorio _controladorIotRepositorio;
         private readonly IControladorContext _controladorContext;
+       
 
         public WebSocketControlController(
             IWebSocketServicio webSocketServicio, 
@@ -165,6 +167,7 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                         Console.WriteLine("==============================");
                         Console.WriteLine("MENSAJE ESP32:");
                         Console.WriteLine(mensaje);
+                        _webSocketServicio.GuardarMensajeRecibido(idControlador,mensaje);
                         Console.WriteLine("==============================");
                     }
                     catch (WebSocketException ex)

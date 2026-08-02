@@ -29,6 +29,9 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IWebSockets
         // Desconecta un controlador IoT.
         Task DesconectarControladorAsync(string idControlador);
         Task RegistrarConexionAsync(WebSocket conexion);
+        void GuardarMensajeRecibido(string idControlador,string mensaje);
+
+        Task<string?> ObtenerMensajeRecibidoAsync(string idControlador);
 
     }
 

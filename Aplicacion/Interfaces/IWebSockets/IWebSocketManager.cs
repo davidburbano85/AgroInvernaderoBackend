@@ -47,6 +47,8 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IWebSockets
             string idControlador
         );
 
+        public void GuardarMensajeRecibido(string idControlador,string mensaje);
+        Task<string?> ObtenerMensajeRecibidoAsync(string idControlador);
 
     }
 

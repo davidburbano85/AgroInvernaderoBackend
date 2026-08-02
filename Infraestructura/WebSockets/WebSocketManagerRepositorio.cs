@@ -9,6 +9,8 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
     {
         private readonly ConcurrentDictionary<string, WebSocket> _controladoresConectados;
 
+        private readonly ConcurrentDictionary<string, string> _mensajesRecibidos;
+
 
         public WebSocketManagerRepositorio()
         {
@@ -16,6 +18,8 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
 
             _controladoresConectados =
                 new ConcurrentDictionary<string, WebSocket>();
+            _mensajesRecibidos =
+                new ConcurrentDictionary<string, string>();
         }
 
 
@@ -272,5 +276,27 @@ namespace invernaderoInteligenteBackend.Infraestructura.WebSockets
             return mensaje;
 
         }
+
+
+        public void GuardarMensajeRecibido(
+        string idControlador,
+        string mensaje)
+        {
+            _mensajesRecibidos[idControlador] = mensaje;
+        }
+
+
+        public Task<string?> ObtenerMensajeRecibidoAsync(
+        string idControlador)
+        {
+            _mensajesRecibidos.TryRemove(
+                idControlador,
+                out var mensaje
+            );
+
+            return Task.FromResult<string?>(mensaje);
+        }
+
+
     }
 }

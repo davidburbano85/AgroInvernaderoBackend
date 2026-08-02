@@ -133,5 +133,27 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.WebSocketServicio
                 throw;
             }
         }
+        public void GuardarMensajeRecibido(
+        string idControlador,
+        string mensaje)
+        {
+            _webSocketManager.GuardarMensajeRecibido(
+                idControlador,
+                mensaje
+            );
+        }
+
+
+        public async Task<string?> ObtenerMensajeRecibidoAsync(
+            string idControlador)
+        {
+            return await _webSocketManager.ObtenerMensajeRecibidoAsync(
+                idControlador
+            );
+        }
+
+
+
+
     }
 }
