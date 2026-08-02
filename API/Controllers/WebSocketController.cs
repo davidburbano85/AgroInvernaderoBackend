@@ -45,7 +45,7 @@ namespace invernaderoInteligenteBackend.Api.Controllers
 
 
                 // 2. Esperar respuesta del ESP32
-               // var respuesta = await _webSocketServicio.ObtenerMensajeRecibidoAsync(idControlador);
+               var respuesta = await _webSocketServicio.ObtenerMensajeRecibidoAsync(idControlador);
 
 
                 // 3. Retornar respuesta al frontend
@@ -53,7 +53,7 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                 {
                     enviado = true,
                     mensaje = "Orden enviada correctamente",
-                    //respuesta = respuesta
+                    respuesta = respuesta
                 });
             }
             catch (Exception ex)
