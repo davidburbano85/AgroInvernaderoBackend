@@ -12,6 +12,8 @@ public sealed class InstrumentoRespuestaDto
     public short TipoInstrumentoId { get; set; }
 
     public string Referencia { get; set; } = string.Empty;
+    public DateTime createdAt { get; set; }
+    public DateTime updatedAt { get; set; }
 
     public EstadoInstrumentoDto Estado { get; set; }
 

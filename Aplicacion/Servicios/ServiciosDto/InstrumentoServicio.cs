@@ -218,6 +218,8 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Referencia = instrumento.Referencia,
                 Estado = EstadoInstrumentoMapperDto.ToDto(instrumento.Estado),
                 Activo = instrumento.Activo,
+                createdAt = instrumento.CreatedAt,
+                updatedAt = instrumento.UpdatedAt,
                 TipoInstrumento = instrumento.TipoInstrumento is null
                     ? null
                     : new TipoInstrumentoRespuestaDto
