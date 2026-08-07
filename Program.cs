@@ -70,7 +70,7 @@ builder.Services.AddScoped<IDBConnectionFactory, NpgsqlConnectionFactory>();
 //===================== AUTH =====================
 builder.Services.AddHttpClient<IAuthServicio, AuthServicio>();
 //===================== JWT =====================
-builder.Services.AddScoped< IJwtServicio,  JwtServicio>();
+//builder.Services.AddScoped< IJwtServicio,  JwtServicio>();
 
 // ===================== CONTEXT     =====================
 builder.Services.AddHttpContextAccessor();//registra el servicio IHttpContextAccessor para acceder al contexto HTTP en otras partes de la aplicación
@@ -226,6 +226,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 FIN CONFIGURACIÓN AUTENTICACIÓN JWT SUPABASE
  ===============
  */
+
+
 //********  AUTORIZACION **********
 builder.Services.AddAuthorization();
 

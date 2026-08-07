@@ -54,7 +54,8 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Ubicacion = dto.Ubicacion,
                 Referencia = dto.Referencia,
                 Descripcion = dto.Descripcion,
-                Activo = true
+                Activo = true,
+                UltimaConexion=dto.UltimaConexion
             };
 
 
@@ -90,6 +91,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Referencia = dto.Referencia,
                 Descripcion = dto.Descripcion,
                 UltimaConexion = dto.UltimaConexion
+
             }; 
 
 
@@ -164,7 +166,8 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Referencia = controlador.Referencia,
                 Descripcion = controlador.Descripcion,
                 UltimaConexion = controlador.UltimaConexion,
-                Activo = controlador.Activo
+                Activo = controlador.Activo,
+                Token=controlador.Token
             };
         }
 

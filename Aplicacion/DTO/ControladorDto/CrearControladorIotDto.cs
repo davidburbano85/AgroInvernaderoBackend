@@ -8,5 +8,6 @@ namespace invernaderoInteligenteBackend.Aplicacion.DTO.ControladorDto
         public string Ubicacion { get; set; }
         public string Referencia { get; set; }
         public string Descripcion { get; set; }
+        public DateTime UltimaConexion { get; set; }
     }
 }
