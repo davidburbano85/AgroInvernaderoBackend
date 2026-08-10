@@ -54,6 +54,20 @@ namespace invernaderoInteligenteBackend.Api.Hubs
 
         }
 
+
+        // Angular llama este método para enviar un mensaje al backend.
+        public async Task EnviarMensaje(string mensaje)
+        {
+            Console.WriteLine($"Mensaje recibido desde Angular: {mensaje}");
+
+            await Clients.Caller.SendAsync(
+                "RecibirMensaje",
+                mensaje
+            );
+        }
+
+
+
     }
 
 }
