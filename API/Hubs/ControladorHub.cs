@@ -3,71 +3,119 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace invernaderoInteligenteBackend.Api.Hubs
 {
-
     [Authorize]
     public class ControladorHub : Hub
     {
+        // ============================================================
+        // UNIRSE AL CONTROLADOR
+        // ============================================================
 
-        // Angular llama este método al abrir un invernadero.
-        // Se agrega la conexión del usuario al grupo correspondiente.
-        public async Task UnirseInvernadero(string idInvernadero)
+        public async Task UnirseControlador(string idControlador)
         {
+            if (string.IsNullOrWhiteSpace(idControlador))
+            {
+                throw new HubException(
+                    "El idControlador es obligatorio."
+                );
+            }
+
+            var grupo = $"Controlador_{idControlador}";
+
+            Console.WriteLine(
+                $"[SignalR] Cliente {Context.ConnectionId} uniéndose a {grupo}"
+            );
 
             await Groups.AddToGroupAsync(
                 Context.ConnectionId,
-                $"Invernadero_{idInvernadero}"
+                grupo
             );
 
+            Console.WriteLine(
+                $"[SignalR] Cliente {Context.ConnectionId} unido a {grupo}"
+            );
         }
 
 
+        // ============================================================
+        // SALIR DEL CONTROLADOR
+        // ============================================================
 
-        // Angular llama este método al cambiar de invernadero.
-        // Se elimina la conexión del grupo anterior.
-        public async Task SalirInvernadero(string idInvernadero)
+        public async Task SalirControlador(string idControlador)
         {
+            if (string.IsNullOrWhiteSpace(idControlador))
+            {
+                return;
+            }
+
+            var grupo = $"Controlador_{idControlador}";
+
+            Console.WriteLine(
+                $"[SignalR] Cliente {Context.ConnectionId} saliendo de {grupo}"
+            );
 
             await Groups.RemoveFromGroupAsync(
                 Context.ConnectionId,
-                $"Invernadero_{idInvernadero}"
+                grupo
             );
 
+            Console.WriteLine(
+                $"[SignalR] Cliente {Context.ConnectionId} salió de {grupo}"
+            );
         }
 
 
+        // ============================================================
+        // CONEXIÓN
+        // ============================================================
 
-        // Se ejecuta cuando Angular se conecta.
         public override async Task OnConnectedAsync()
         {
+            Console.WriteLine(
+                $"[SignalR] CONEXIÓN: {Context.ConnectionId}"
+            );
 
             await base.OnConnectedAsync();
-
         }
 
 
+        // ============================================================
+        // DESCONEXIÓN
+        // ============================================================
 
-        // Se ejecuta cuando Angular se desconecta.
-        public override async Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(
+            Exception? exception)
         {
+            Console.WriteLine(
+                $"[SignalR] DESCONEXIÓN: {Context.ConnectionId}"
+            );
+
+            if (exception != null)
+            {
+                Console.WriteLine(
+                    $"[SignalR] Error: {exception.Message}"
+                );
+            }
 
             await base.OnDisconnectedAsync(exception);
-
         }
 
 
-        // Angular llama este método para enviar un mensaje al backend.
+        // ============================================================
+        // MENSAJE DESDE ANGULAR
+        // ============================================================
+
         public async Task EnviarMensaje(string mensaje)
         {
-            Console.WriteLine($"Mensaje recibido desde Angular: {mensaje}");
-
-            await Clients.Caller.SendAsync(
-                "RecibirMensaje",
-                mensaje
+            Console.WriteLine(
+                $"[SignalR] Mensaje recibido desde Angular: {mensaje}"
             );
+
+            // IMPORTANTE:
+            // Ya NO hacemos Clients.Caller.SendAsync().
+            //
+            // El mensaje que debe aparecer en Angular como
+            // "RecibirMensaje" será el mensaje REAL que llegue
+            // desde el ESP32 mediante WebSocket.
         }
-
-
-
     }
-
 }
