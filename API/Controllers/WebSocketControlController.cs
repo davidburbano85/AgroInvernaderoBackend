@@ -1,5 +1,6 @@
 ﻿using invernaderoInteligenteBackend.Aplicacion.Interfaces.Context;
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios;
+using invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios.ISignalR;
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IWebSockets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,17 +18,20 @@ namespace invernaderoInteligenteBackend.Api.Controllers
         private readonly IWebSocketServicio _webSocketServicio;
         private readonly IControladorIotRepositorio _controladorIotRepositorio;
         private readonly IControladorContext _controladorContext;
-       
+        private readonly ISignalRServicio _signalRServicio;
+
 
         public WebSocketControlController(
             IWebSocketServicio webSocketServicio, 
             IControladorIotRepositorio controladorIotRepositorio,
-            IControladorContext controladorContext)
+            IControladorContext controladorContext,
+            ISignalRServicio signalRServicio)
 
         {
             _webSocketServicio = webSocketServicio;
             _controladorIotRepositorio = controladorIotRepositorio;
             _controladorContext = controladorContext;
+            _signalRServicio = signalRServicio;
         }
 
 
@@ -129,23 +133,32 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                 {
                     try
                     {
-                        Console.WriteLine("Esperando ReceiveAsync...");
+                        Console.WriteLine("======================================");
+                        Console.WriteLine("[WebSocket] Esperando ReceiveAsync...");
 
                         var resultado = await conexion.ReceiveAsync(
                             new ArraySegment<byte>(buffer),
                             CancellationToken.None
                         );
 
+                        Console.WriteLine("[WebSocket] Receive terminado");
+                        Console.WriteLine(
+                            $"[WebSocket] Tipo: {resultado.MessageType}"
+                        );
 
-                        Console.WriteLine("Receive terminado");
-                        Console.WriteLine($"Tipo: {resultado.MessageType}");
-                        Console.WriteLine($"Bytes: {resultado.Count}");
+                        Console.WriteLine(
+                            $"[WebSocket] Bytes: {resultado.Count}"
+                        );
 
+                        // ==========================================
+                        // CIERRE DEL WEBSOCKET
+                        // ==========================================
 
                         if (resultado.MessageType == WebSocketMessageType.Close)
                         {
-                            Console.WriteLine("Cliente pidió cierre");
-
+                            Console.WriteLine(
+                                "[WebSocket] Cliente pidió cierre"
+                            );
 
                             await conexion.CloseAsync(
                                 WebSocketCloseStatus.NormalClosure,
@@ -156,6 +169,9 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                             break;
                         }
 
+                        // ==========================================
+                        // MENSAJE ESP32
+                        // ==========================================
 
                         var mensaje = Encoding.UTF8.GetString(
                             buffer,
@@ -163,24 +179,71 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                             resultado.Count
                         );
 
-
                         Console.WriteLine("==============================");
                         Console.WriteLine("MENSAJE ESP32:");
                         Console.WriteLine(mensaje);
-                        _webSocketServicio.GuardarMensajeRecibido(idControlador,mensaje);
+                        Console.WriteLine(
+                            $"ID CONTROLADOR: {idControlador}"
+                        );
+                        Console.WriteLine("==============================");
+
+                        // ==========================================
+                        // GUARDAR MENSAJE
+                        // ==========================================
+
+                        _webSocketServicio.GuardarMensajeRecibido(
+                            idControlador,
+                            mensaje
+                        );
+
+                        Console.WriteLine(
+                            "[WebSocket] Mensaje guardado correctamente."
+                        );
+
+                        // ==========================================
+                        // ENVIAR A ANGULAR MEDIANTE SIGNALR
+                        // ==========================================
+
+                        await _signalRServicio.EnviarMensajeAsync(
+                            idControlador,
+                            mensaje
+                        );
+
+                        Console.WriteLine(
+                            $"[SignalR] Mensaje enviado al grupo Controlador_{idControlador}"
+                        );
+
                         Console.WriteLine("==============================");
                     }
                     catch (WebSocketException ex)
                     {
-                        Console.WriteLine("WEBSOCKET CERRADO POR CLIENTE");
-                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(
+                            "[WebSocket] WEBSOCKET CERRADO POR CLIENTE"
+                        );
+
+                        Console.WriteLine(
+                            $"[WebSocket] {ex.Message}"
+                        );
 
                         break;
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(
+                            "[WebSocket] ERROR PROCESANDO MENSAJE"
+                        );
+
+                        Console.WriteLine(
+                            $"[WebSocket] {ex.Message}"
+                        );
+
+                        Console.WriteLine(
+                            ex.StackTrace
+                        );
+                    }
                 }
-
-
             }
+
             catch (Exception ex)
             {
 
