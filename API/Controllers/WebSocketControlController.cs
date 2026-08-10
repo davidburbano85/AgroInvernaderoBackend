@@ -2,15 +2,12 @@
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios;
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios.ISignalR;
 using invernaderoInteligenteBackend.Aplicacion.Interfaces.IWebSockets;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 
 namespace invernaderoInteligenteBackend.Api.Controllers
 {
-   // [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WebSocketControlController : ControllerBase
@@ -20,13 +17,11 @@ namespace invernaderoInteligenteBackend.Api.Controllers
         private readonly IControladorContext _controladorContext;
         private readonly ISignalRServicio _signalRServicio;
 
-
         public WebSocketControlController(
-            IWebSocketServicio webSocketServicio, 
+            IWebSocketServicio webSocketServicio,
             IControladorIotRepositorio controladorIotRepositorio,
             IControladorContext controladorContext,
             ISignalRServicio signalRServicio)
-
         {
             _webSocketServicio = webSocketServicio;
             _controladorIotRepositorio = controladorIotRepositorio;
@@ -34,64 +29,74 @@ namespace invernaderoInteligenteBackend.Api.Controllers
             _signalRServicio = signalRServicio;
         }
 
-
-
-
         [HttpGet("conectar")]
         public async Task Conectar()
         {
             Console.WriteLine("======================================");
-            Console.WriteLine("[1] Entró al endpoint WebSocket");
+            Console.WriteLine("[WebSocket] ENTRÓ AL ENDPOINT");
             Console.WriteLine("======================================");
 
+            // =====================================================
+            // VERIFICAR REQUEST WEBSOCKET
+            // =====================================================
 
             if (!HttpContext.WebSockets.IsWebSocketRequest)
             {
-                Console.WriteLine("[ERROR] No es WebSocket");
+                Console.WriteLine(
+                    "[WebSocket] ERROR: No es una petición WebSocket"
+                );
 
                 HttpContext.Response.StatusCode = 400;
-
                 return;
             }
 
+            // =====================================================
+            // ACEPTAR CONEXIÓN
+            // =====================================================
 
-            Console.WriteLine("[2] Aceptando WebSocket");
-
+            Console.WriteLine(
+                "[WebSocket] Aceptando conexión..."
+            );
 
             WebSocket conexion =
                 await HttpContext.WebSockets.AcceptWebSocketAsync();
 
+            Console.WriteLine(
+                "[WebSocket] Conexión aceptada"
+            );
 
-            Console.WriteLine("[3] WebSocket aceptado");
-
-
-            string idControlador = null;
-
+            string? idControlador = null;
 
             try
             {
+                // =================================================
+                // OBTENER TOKEN DEL ESP32
+                // =================================================
 
-                Console.WriteLine("[4] Registrando controlador");
-
+                Console.WriteLine(
+                    "[WebSocket] Obteniendo token del controlador..."
+                );
 
                 var token =
                     _controladorContext.ObtenerTokenControlador();
 
+                Console.WriteLine(
+                    $"[WebSocket] Token: {token}"
+                );
 
-                Console.WriteLine($"TOKEN: {token}");
-
+                // =================================================
+                // BUSCAR CONTROLADOR
+                // =================================================
 
                 var controlador =
                     await _controladorIotRepositorio
                         .ObtenerControladorPorToken(token);
 
-
-
                 if (controlador == null)
                 {
-
-                    Console.WriteLine("[ERROR] Controlador no encontrado");
-
+                    Console.WriteLine(
+                        "[WebSocket] ERROR: Controlador no encontrado"
+                    );
 
                     await conexion.CloseAsync(
                         WebSocketCloseStatus.PolicyViolation,
@@ -99,49 +104,65 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                         CancellationToken.None
                     );
 
-
                     return;
                 }
 
-
+                // =================================================
+                // OBTENER ID CONTROLADOR
+                // =================================================
 
                 idControlador =
                     controlador.Id.ToString();
 
-
-
                 Console.WriteLine(
-                    $"CONTROLADOR ID: {idControlador}"
+                    $"[WebSocket] CONTROLADOR ID: {idControlador}"
                 );
 
-
+                // =================================================
+                // REGISTRAR WEBSOCKET
+                // =================================================
 
                 await _webSocketServicio
                     .RegistrarConexionAsync(conexion);
 
+                Console.WriteLine(
+                    $"[WebSocket] Controlador {idControlador} registrado"
+                );
 
-
-                Console.WriteLine("[5] Conexion registrada");
-
-
+                // =================================================
+                // BUFFER
+                // =================================================
 
                 var buffer = new byte[4096];
 
+                // =================================================
+                // RECIBIR MENSAJES DEL ESP32
+                // =================================================
 
-
-                while (conexion.State == WebSocketState.Open)
+                while (
+                    conexion.State == WebSocketState.Open
+                )
                 {
                     try
                     {
-                        Console.WriteLine("======================================");
-                        Console.WriteLine("[WebSocket] Esperando ReceiveAsync...");
-
-                        var resultado = await conexion.ReceiveAsync(
-                            new ArraySegment<byte>(buffer),
-                            CancellationToken.None
+                        Console.WriteLine(
+                            "======================================"
                         );
 
-                        Console.WriteLine("[WebSocket] Receive terminado");
+                        Console.WriteLine(
+                            $"[WebSocket] Esperando mensaje del ESP32..."
+                        );
+
+                        var resultado =
+                            await conexion.ReceiveAsync(
+                                new ArraySegment<byte>(buffer),
+                                CancellationToken.None
+                            );
+
+                        Console.WriteLine(
+                            "[WebSocket] Receive terminado"
+                        );
+
                         Console.WriteLine(
                             $"[WebSocket] Tipo: {resultado.MessageType}"
                         );
@@ -150,14 +171,17 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                             $"[WebSocket] Bytes: {resultado.Count}"
                         );
 
-                        // ==========================================
-                        // CIERRE DEL WEBSOCKET
-                        // ==========================================
+                        // =========================================
+                        // CIERRE
+                        // =========================================
 
-                        if (resultado.MessageType == WebSocketMessageType.Close)
+                        if (
+                            resultado.MessageType ==
+                            WebSocketMessageType.Close
+                        )
                         {
                             Console.WriteLine(
-                                "[WebSocket] Cliente pidió cierre"
+                                "[WebSocket] ESP32 solicitó cierre"
                             );
 
                             await conexion.CloseAsync(
@@ -169,56 +193,94 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                             break;
                         }
 
-                        // ==========================================
-                        // MENSAJE ESP32
-                        // ==========================================
+                        // =========================================
+                        // IGNORAR MENSAJES QUE NO SEAN TEXTO
+                        // =========================================
 
-                        var mensaje = Encoding.UTF8.GetString(
-                            buffer,
-                            0,
-                            resultado.Count
-                        );
+                        if (
+                            resultado.MessageType !=
+                            WebSocketMessageType.Text
+                        )
+                        {
+                            Console.WriteLine(
+                                "[WebSocket] Mensaje no textual ignorado"
+                            );
 
-                        Console.WriteLine("==============================");
-                        Console.WriteLine("MENSAJE ESP32:");
-                        Console.WriteLine(mensaje);
+                            continue;
+                        }
+
+                        // =========================================
+                        // CONVERTIR MENSAJE
+                        // =========================================
+
+                        var mensaje =
+                            Encoding.UTF8.GetString(
+                                buffer,
+                                0,
+                                resultado.Count
+                            );
+
                         Console.WriteLine(
-                            $"ID CONTROLADOR: {idControlador}"
+                            "======================================"
                         );
-                        Console.WriteLine("==============================");
 
-                        // ==========================================
+                        Console.WriteLine(
+                            "[WebSocket] MENSAJE REAL DEL ESP32:"
+                        );
+
+                        Console.WriteLine(
+                            mensaje
+                        );
+
+                        Console.WriteLine(
+                            $"[WebSocket] ID CONTROLADOR: {idControlador}"
+                        );
+
+                        Console.WriteLine(
+                            "======================================"
+                        );
+
+                        // =========================================
                         // GUARDAR MENSAJE
-                        // ==========================================
+                        // =========================================
 
-                        _webSocketServicio.GuardarMensajeRecibido(
-                            idControlador,
-                            mensaje
+                        _webSocketServicio
+                            .GuardarMensajeRecibido(
+                                idControlador,
+                                mensaje
+                            );
+
+                        Console.WriteLine(
+                            "[WebSocket] Mensaje guardado"
+                        );
+
+                        // =========================================
+                        // ENVIAR MENSAJE REAL DEL ESP32
+                        // A ANGULAR MEDIANTE SIGNALR
+                        // =========================================
+
+                        await _signalRServicio
+                            .EnviarMensajeAsync(
+                                idControlador,
+                                mensaje
+                            );
+
+                        Console.WriteLine(
+                            "[SignalR] Mensaje del ESP32 enviado a Angular"
                         );
 
                         Console.WriteLine(
-                            "[WebSocket] Mensaje guardado correctamente."
-                        );
-
-                        // ==========================================
-                        // ENVIAR A ANGULAR MEDIANTE SIGNALR
-                        // ==========================================
-
-                        await _signalRServicio.EnviarMensajeAsync(
-                            idControlador,
-                            mensaje
+                            $"[SignalR] Grupo: Controlador_{idControlador}"
                         );
 
                         Console.WriteLine(
-                            $"[SignalR] Mensaje enviado al grupo Controlador_{idControlador}"
+                            "======================================"
                         );
-
-                        Console.WriteLine("==============================");
                     }
                     catch (WebSocketException ex)
                     {
                         Console.WriteLine(
-                            "[WebSocket] WEBSOCKET CERRADO POR CLIENTE"
+                            "[WebSocket] Conexión cerrada por el ESP32"
                         );
 
                         Console.WriteLine(
@@ -230,7 +292,7 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                     catch (Exception ex)
                     {
                         Console.WriteLine(
-                            "[WebSocket] ERROR PROCESANDO MENSAJE"
+                            "[WebSocket] ERROR procesando mensaje"
                         );
 
                         Console.WriteLine(
@@ -243,39 +305,50 @@ namespace invernaderoInteligenteBackend.Api.Controllers
                     }
                 }
             }
-
             catch (Exception ex)
             {
+                Console.WriteLine(
+                    "======================================"
+                );
 
-                Console.WriteLine("==============================");
-                Console.WriteLine("ERROR WEBSOCKET");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                Console.WriteLine("==============================");
+                Console.WriteLine(
+                    "[WebSocket] ERROR GENERAL"
+                );
 
+                Console.WriteLine(
+                    ex.Message
+                );
+
+                Console.WriteLine(
+                    ex.StackTrace
+                );
+
+                Console.WriteLine(
+                    "======================================"
+                );
             }
             finally
             {
+                // =============================================
+                // LIMPIAR CONEXIÓN
+                // =============================================
 
-                Console.WriteLine("[10] FINALIZANDO SOCKET");
-
+                Console.WriteLine(
+                    "[WebSocket] FINALIZANDO SOCKET"
+                );
 
                 if (!string.IsNullOrEmpty(idControlador))
                 {
-
                     await _webSocketServicio
-                        .DesconectarControladorAsync(idControlador);
-
+                        .DesconectarControladorAsync(
+                            idControlador
+                        );
                 }
 
-
-                Console.WriteLine("[11] SOCKET LIMPIO");
-
+                Console.WriteLine(
+                    "[WebSocket] SOCKET LIMPIO"
+                );
             }
         }
-
     }
-
 }
-
-   

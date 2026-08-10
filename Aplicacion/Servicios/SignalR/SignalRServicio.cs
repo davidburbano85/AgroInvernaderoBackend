@@ -4,72 +4,71 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace invernaderoInteligenteBackend.Aplicacion.Servicios.SignalR
 {
-
     public class SignalRServicio : ISignalRServicio
     {
-
-        // Contexto del Hub.
-        // Permite enviar mensajes a conexiones SignalR.
         private readonly IHubContext<ControladorHub> _hubContext;
 
-
-
-        // Constructor.
         public SignalRServicio(
             IHubContext<ControladorHub> hubContext)
         {
-
-            // Guardamos la referencia del Hub.
             _hubContext = hubContext;
-
         }
 
+        // ============================================================
+        // ENVIAR MENSAJE AL CONTROLADOR
+        // ============================================================
 
-
-        // Envía un mensaje solamente al invernadero indicado.
         public async Task EnviarMensajeAsync(
-            string idInvernadero,
+            string idControlador,
             string mensaje)
         {
+            Console.WriteLine("======================================");
+            Console.WriteLine("[SignalRServicio] Enviando mensaje");
+            Console.WriteLine($"[SignalRServicio] Controlador: {idControlador}");
+            Console.WriteLine($"[SignalRServicio] Mensaje: {mensaje}");
+            Console.WriteLine(
+                $"[SignalRServicio] Grupo: Controlador_{idControlador}"
+            );
+            Console.WriteLine("======================================");
 
             await _hubContext.Clients
-                .Group($"Invernadero_{idInvernadero}")
+                .Group($"Controlador_{idControlador}")
                 .SendAsync(
                     "RecibirMensaje",
                     mensaje
                 );
 
+            Console.WriteLine(
+                "[SignalRServicio] Mensaje enviado correctamente"
+            );
         }
 
+        // ============================================================
+        // ENVIAR MENSAJE A USUARIO
+        // ============================================================
 
-
-        // Envía un mensaje solamente a un usuario específico.
         public async Task EnviarMensajeUsuarioAsync(
             string idUsuario,
             string mensaje)
         {
-
             await _hubContext.Clients
                 .User(idUsuario)
                 .SendAsync(
                     "RecibirMensaje",
                     mensaje
                 );
-
         }
 
+        // ============================================================
+        // ESTADO DEL CONTROLADOR
+        // ============================================================
 
-
-        // Envía información del controlador
-        // únicamente al invernadero dueño.
         public async Task EnviarEstadoControladorAsync(
-            string idInvernadero,
             string idControlador,
             string estado)
         {
-
             await _hubContext.Clients
-                .Group($"Invernadero_{idInvernadero}")
+                .Group($"Controlador_{idControlador}")
                 .SendAsync(
                     "EstadoControlador",
                     new
@@ -78,10 +77,6 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.SignalR
                         estado
                     }
                 );
-
         }
-
-
     }
-
 }

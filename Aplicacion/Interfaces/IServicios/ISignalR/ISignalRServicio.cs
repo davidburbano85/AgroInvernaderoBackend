@@ -10,7 +10,10 @@
         Task EnviarMensajeUsuarioAsync(string idUsuario,string mensaje);
 
         // Envía estado del controlador al invernadero correspondiente.
-        Task EnviarEstadoControladorAsync(string idInvernadero,string idControlador,string estado);
+        Task EnviarEstadoControladorAsync(
+     string idControlador,
+     string estado
+ );
     }
 
 }
