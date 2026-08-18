@@ -12,7 +12,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios
 
 
         // El usuario autenticado solo tiene un invernadero y este solo un controlador
-        Task<ControladorIotRespuestaDto?> ObtenerControladorIotPorInvernaderoAsync();
+        Task<ControladorIotRespuestaDto?> ObtenerControladorIotPorInvernaderoAsync(long invernaderoId);
 
         Task<bool> ReactivarControladorIotAsync(long id);
     }

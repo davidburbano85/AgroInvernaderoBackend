@@ -13,7 +13,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IRepositorios
         Task<Invernadero?> ObtenerInvernaderoPorIdAsync(long id, Guid usuarioId);
 
         // Un usuario solo puede tener un invernadero
-        Task<Invernadero?> ObtenerPorUsuarioAsync(Guid usuarioId);
+        Task<IEnumerable<Invernadero?>> ObtenerPorUsuarioAsync(Guid usuarioId);
 
         Task<bool> ExisteInvernaderoAsync(long id);
 

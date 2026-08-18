@@ -12,7 +12,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios
 
         Task<InvernaderoRespuestaDto?> ObtenerPorIdAsync(long id);
 
-        Task<InvernaderoRespuestaDto> ObtenerPorUsuarioAsync();
+        Task<IEnumerable<InvernaderoRespuestaDto>> ObtenerPorUsuarioAsync();
         Task<bool> ReactivarAsync(long id);
     }
 }

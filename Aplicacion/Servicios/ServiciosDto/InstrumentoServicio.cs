@@ -33,16 +33,14 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
             _invernaderoRepositorio = invernaderoRepositorio;
         }
 
-        public async Task<InstrumentoRespuestaDto> CrearInstrumentoAsync(CrearInstrumentoDto dto)
+        public async Task<InstrumentoRespuestaDto> CrearInstrumentoAsync(CrearInstrumentoDto dto, Guid token)
         {
-            Guid usuarioId = _usuarioContext.ObtenerAuthUserId();
-            Invernadero? invernadero =
-                await _invernaderoRepositorio.ObtenerPorUsuarioAsync(usuarioId);
+      
 
-            if (invernadero is null)
-                throw new InvalidOperationException("El usuario no tiene un controlador IoT registrado.");
-            ControladorIot? controlador=(await _controladorRepositorio
-                .ObtenerControladorIotPorInvernaderoAsync(invernadero.Id)).FirstOrDefault();
+            ControladorIot? controlador=await _controladorRepositorio
+                .ObtenerControladorPorToken(token);
+            if (controlador is null)
+                throw new InvalidOperationException("El controlador IoT no existe.");
 
             bool existeTipo =
                 await _tipoInstrumentoRepositorio.ExisteTipoInstrumentoAsync(dto.TipoInstrumentoId);
@@ -189,11 +187,11 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
             };
         }
 
-        public async Task<IEnumerable<InstrumentoRespuestaDto>> ObtenerInstrumentoPorControladorAsync()
+        public async Task<IEnumerable<InstrumentoRespuestaDto>> ObtenerInstrumentoPorControladorAsync(long invernaderoId)
         {
             Guid usuarioId = _usuarioContext.ObtenerAuthUserId();
 
-            Invernadero? invernadero =await _invernaderoRepositorio.ObtenerPorUsuarioAsync(usuarioId);
+            Invernadero? invernadero =await _invernaderoRepositorio.ObtenerInvernaderoPorIdAsync(invernaderoId,usuarioId);
 
             if (invernadero is null)
                 throw new InvalidOperationException("El usuario no tiene un controlador IoT registrado.");

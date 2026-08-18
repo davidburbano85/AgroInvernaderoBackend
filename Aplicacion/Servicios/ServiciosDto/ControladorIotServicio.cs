@@ -31,12 +31,21 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
         {
             Guid usuarioId = _usuarioContext.ObtenerAuthUserId();
 
-            Invernadero? invernadero =
+           IEnumerable <Invernadero?> invernaderos =
                 await _invernaderoRepositorio.ObtenerPorUsuarioAsync(usuarioId);
 
-            if (invernadero is null)
-                throw new InvalidOperationException("El usuario no tiene un invernadero registrado.");
+            Invernadero? invernadero = null;
+            foreach (var inv in invernaderos)
+            {
+                if (inv is not null  && inv.Id==dto.InvernaderoId)
+                {
+                    invernadero = inv;
+                    break;
+                }
+            }
 
+            if(invernadero is null)
+                throw new InvalidOperationException("El invernadero no existe o no pertenece al usuario autenticado.");
 
             bool existeControlador =
                 await _controladorIotRepositorio.ExisteControladorPorInvernaderoAsync(invernadero.Id);
@@ -58,10 +67,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 UltimaConexion=dto.UltimaConexion
             };
 
-
-            long id =
-                await _controladorIotRepositorio.CrearControladorIotAsync(controlador);
-
+            long  id = await _controladorIotRepositorio.CrearControladorIotAsync(controlador);
 
             controlador.Id = id;
 
@@ -131,18 +137,18 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
       
 
 
-        public async Task<ControladorIotRespuestaDto?> ObtenerControladorIotPorInvernaderoAsync()
+        public async Task<ControladorIotRespuestaDto?> ObtenerControladorIotPorInvernaderoAsync(long invernaderoId)
         {
             Guid usuarioId = _usuarioContext.ObtenerAuthUserId();
 
 
-            Invernadero? invernadero =
+           IEnumerable< Invernadero?> invernaderos =
                 await _invernaderoRepositorio.ObtenerPorUsuarioAsync(usuarioId);
 
 
-            if (invernadero is null)
-                return null;
-
+          Invernadero? invernadero = invernaderos.FirstOrDefault(x=> x?.Id == invernaderoId);
+            if(invernadero is null)
+                throw new InvalidOperationException("El invernadero no existe o no pertenece al usuario autenticado.");
 
             var controladores =
                 await _controladorIotRepositorio

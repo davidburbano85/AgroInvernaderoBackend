@@ -63,11 +63,11 @@ namespace invernaderoInteligenteBackend.Api.Controllers
 
 
         [HttpGet("invernadero")]
-        public async Task<IActionResult> ObtenerPorInvernadero()
+        public async Task<IActionResult> ObtenerPorInvernadero(long invernaderoId)
         {
             var respuesta =
-                await _controladorIotServicio
-                    .ObtenerControladorIotPorInvernaderoAsync();
+                await _controladorIotServicio.ObtenerControladorIotPorInvernaderoAsync(invernaderoId);
+
 
 
             if (respuesta is null)

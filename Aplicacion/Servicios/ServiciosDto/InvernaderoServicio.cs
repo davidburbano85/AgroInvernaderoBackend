@@ -128,24 +128,29 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
             };
         }
 
-        public async Task<InvernaderoRespuestaDto?> ObtenerPorUsuarioAsync()
+        public async Task<IEnumerable<InvernaderoRespuestaDto>> ObtenerPorUsuarioAsync()
         {
             Guid usuarioId = _usuarioContext.ObtenerAuthUserId();
 
-            Invernadero? invernadero = await _invernaderoRepositorio.ObtenerPorUsuarioAsync(usuarioId);
+            IEnumerable<Invernadero?> invernaderos =
+                await _invernaderoRepositorio.ObtenerPorUsuarioAsync(usuarioId);
 
-            if (invernadero is null)
+            if (invernaderos is null)
                 return null;
 
-            return new InvernaderoRespuestaDto
+            return  invernaderos
+            .Where(invernadero=> invernadero is not null)
+            .Select(i => new InvernaderoRespuestaDto
             {
-                Id = invernadero.Id,
-                Nombre = invernadero.Nombre,
-                Ubicacion = invernadero.Ubicacion,
-                Activo = invernadero.Activo,
-                CreatedAt = invernadero.CreatedAt,
-                UpdatedAt = invernadero.UpdatedAt
-            };
+                Id = i!.Id,
+                Nombre = i.Nombre,
+                Ubicacion = i.Ubicacion,
+                Activo = i.Activo,
+                CreatedAt = i.CreatedAt,
+                UpdatedAt = i.UpdatedAt,
+            });
         }
+   
+    
     }
 }

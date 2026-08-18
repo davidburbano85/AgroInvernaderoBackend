@@ -4,7 +4,7 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios
 {
     public interface IInstrumentoServicio
     {
-        Task<InstrumentoRespuestaDto> CrearInstrumentoAsync(CrearInstrumentoDto dto);
+        Task<InstrumentoRespuestaDto> CrearInstrumentoAsync(CrearInstrumentoDto dto, Guid token);
 
         Task<InstrumentoRespuestaDto> ActualizarInstrumentoAsync(long id,ActualizarInstrumentoDto dto);
 
@@ -14,6 +14,6 @@ namespace invernaderoInteligenteBackend.Aplicacion.Interfaces.IServicios
 
         Task<InstrumentoRespuestaDto> ObtenerInstrumentoPorIdAsync(long id);
 
-        Task<IEnumerable<InstrumentoRespuestaDto>> ObtenerInstrumentoPorControladorAsync();
+        Task<IEnumerable<InstrumentoRespuestaDto>> ObtenerInstrumentoPorControladorAsync(long invernaderoId);
     }
 }

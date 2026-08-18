@@ -20,10 +20,12 @@ namespace invernaderoInteligenteBackend.API.Controllers
 
         [HttpPost]
         public async Task<ActionResult<InstrumentoRespuestaDto>> Crear(
-            [FromBody] CrearInstrumentoDto dto)
+            [FromBody] CrearInstrumentoDto dto,
+            [FromQuery] Guid token
+            )
         {
             var instrumento =
-                await _instrumentoServicio.CrearInstrumentoAsync(dto);
+                await _instrumentoServicio.CrearInstrumentoAsync(dto, token);
 
             return CreatedAtAction(
                 nameof(ObtenerPorId),
@@ -73,10 +75,10 @@ namespace invernaderoInteligenteBackend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InstrumentoRespuestaDto>>> ObtenerPorControlador()
+        public async Task<ActionResult<IEnumerable<InstrumentoRespuestaDto>>> ObtenerPorControlador(long invernaderoId)
         {
             var instrumentos =
-                await _instrumentoServicio.ObtenerInstrumentoPorControladorAsync();
+                await _instrumentoServicio.ObtenerInstrumentoPorControladorAsync(invernaderoId);
 
             return Ok(instrumentos);
         }

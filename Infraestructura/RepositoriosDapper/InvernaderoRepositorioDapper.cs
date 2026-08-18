@@ -98,7 +98,7 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                 sql, new { InvernaderoId = id, UsuarioId=usuarioId },_unitOfWork.Transaction );
         }
 
-        public async Task<Invernadero?> ObtenerPorUsuarioAsync(Guid usuarioId)
+        public async Task<IEnumerable<Invernadero?>> ObtenerPorUsuarioAsync(Guid usuarioId)
         {
             const string sql = """
                 SELECT *
@@ -106,7 +106,7 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                 WHERE usuario_id = @UsuarioId
                 """;
 
-            return await _unitOfWork.Connection.QueryFirstOrDefaultAsync<Invernadero>(
+            return await _unitOfWork.Connection.QueryAsync<Invernadero>(
                 sql,
                 new { UsuarioId = usuarioId },
                 _unitOfWork.Transaction);
