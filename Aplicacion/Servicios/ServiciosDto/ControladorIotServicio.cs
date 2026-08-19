@@ -180,7 +180,10 @@ namespace invernaderoInteligenteBackend.Aplicacion.Servicios.ServiciosDto
                 Descripcion = controlador.Descripcion,
                 UltimaConexion = controlador.UltimaConexion,
                 Activo = controlador.Activo,
-                Token=controlador.Token
+                Token=controlador.Token,
+
+                CreatedAt = controlador.CreatedAt,
+                UpdatedAt = controlador.UpdatedAt
             };
         }
 
