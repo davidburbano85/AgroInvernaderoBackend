@@ -51,6 +51,9 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                     referencia,
                     descripcion,
                     ultima_conexion,
+                    created_at,
+                    updated_at,
+
                     activo
                 )
                 VALUES (
@@ -61,6 +64,8 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                     @Referencia,
                     @Descripcion,
                     @UltimaConexion,
+                    @CreatedAt,
+                    @UpdatedAt,
                     @Activo
                 )
                 RETURNING id
@@ -72,6 +77,9 @@ namespace invernaderoInteligenteBackend.Infraestructura.RepositoriosDapper
                 _unitOfWork.Transaction
             );
         }
+       
+        
+        
         public async Task<bool> EliminarLogicoControladorIotAsync(long id)
         {
             const string sql = """
