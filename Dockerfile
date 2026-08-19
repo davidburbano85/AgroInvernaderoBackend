@@ -1,28 +1,14 @@
 # ============================
-# Etapa de compilación
-# ============================
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-
-WORKDIR /src
-
-# Copiar archivos del proyecto
-COPY . .
-
-# Restaurar dependencias
-RUN dotnet restore "invernaderoInteligenteBackend.csproj"
-
-# Publicar aplicación
-RUN dotnet publish "invernaderoInteligenteBackend.csproj" \
-    -c Release \
-    -o /app/publish \
-    /p:UseAppHost=false
-
-# ============================
 # Etapa de ejecución
 # ============================
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 
 WORKDIR /app
+
+# Instalar dependencia necesaria para Kerberos/GSSAPI
+RUN apt-get update && \
+    apt-get install -y libgssapi-krb5-2 && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/publish .
 
